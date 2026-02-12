@@ -1,58 +1,8 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import Button from "@components/ui/Button.astro";
-import { getIcon } from "@lib/icons";
+import HomeHero from "./_components/home-hero.astro";
 ---
 
 <Layout>
-  <!-- Temporary Hero Section for testing Header/Footer -->
-  <section class="container-bytek py-20 sm:py-32">
-    <div class="max-w-3xl">
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-neutral-900 leading-[1.1] mb-6">
-        Construimos productos digitales que
-        <span class="text-primary-500">transforman negocios</span>
-      </h1>
-      <p class="text-lg sm:text-xl text-neutral-600 leading-relaxed mb-10 max-w-2xl">
-        Somos tu equipo técnico. Desde la idea hasta el producto en producción,
-        te acompañamos con desarrollo de software, soluciones de IA y consultoría
-        de alto impacto.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <Button
-          href="/contact"
-          variant="primary"
-          size="lg"
-          icon={getIcon("arrow-right")}
-          iconPosition="right"
-        >
-          Hablemos de tu proyecto
-        </Button>
-        <Button
-          href="/work"
-          variant="outline"
-          size="lg"
-        >
-          Ver nuestro trabajo
-        </Button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Spacer sections to test scroll behavior -->
-  <section class="container-bytek py-20">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="p-6 rounded-(--radius-card) border border-neutral-200 hover:border-neutral-300 hover:shadow-lg hover:shadow-neutral-900/5 transition-all duration-300">
-        <h3 class="font-display font-semibold text-lg text-neutral-900 mb-2">Desarrollo de Software</h3>
-        <p class="text-sm text-neutral-600 leading-relaxed">Aplicaciones web y móviles escalables, construidas con las mejores tecnologías del mercado.</p>
-      </div>
-      <div class="p-6 rounded-(--radius-card) border border-neutral-200 hover:border-neutral-300 hover:shadow-lg hover:shadow-neutral-900/5 transition-all duration-300">
-        <h3 class="font-display font-semibold text-lg text-neutral-900 mb-2">Soluciones de IA</h3>
-        <p class="text-sm text-neutral-600 leading-relaxed">Integramos inteligencia artificial en cada solución que construimos. IA en el ADN de tu producto.</p>
-      </div>
-      <div class="p-6 rounded-(--radius-card) border border-neutral-200 hover:border-neutral-300 hover:shadow-lg hover:shadow-neutral-900/5 transition-all duration-300">
-        <h3 class="font-display font-semibold text-lg text-neutral-900 mb-2">Cloud & DevOps</h3>
-        <p class="text-sm text-neutral-600 leading-relaxed">Infraestructura moderna, CI/CD automatizado y arquitectura cloud que escala con tu negocio.</p>
-      </div>
-    </div>
-  </section>
+  <HomeHero lang="es" />
 </Layout>

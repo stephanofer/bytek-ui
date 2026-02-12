@@ -1,25 +1,24 @@
 /**
  * Bytek — Site Constants
- * Central place for all site-wide configuration
+ *
+ * Central place for all site-wide configuration.
+ * Navigation and footer items are i18n-aware — they use t() for labels
+ * and getLocalizedHref() for links.
  */
+
+import {
+  useTranslations,
+  getLocalizedHref,
+  type Lang,
+} from "@/i18n/utils";
 
 export const SITE = {
   name: "Bytek",
-  description:
-    "Bytek — Software development and IT consulting company. We build scalable, high-performance digital products.",
   url: "https://bytek.com",
-  defaultLanguage: "es",
-  supportedLanguages: ["es", "en"] as const,
 } as const;
 
-export type SupportedLanguage = (typeof SITE.supportedLanguages)[number];
+// ── Type Definitions ────────────────────────────────
 
-/**
- * Navigation items for the header
- *
- * - Simple items: just `label` + `href`
- * - Mega menu items: have `megaMenu` with grouped links + optional sidebar
- */
 export interface NavLink {
   label: string;
   href: string;
@@ -46,188 +45,206 @@ export interface NavItem {
   megaMenu?: MegaMenu;
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  {
-    label: "Servicios",
-    href: "/services",
-    megaMenu: {
-      groups: [
-        {
-          title: "Desarrollo",
-          links: [
-            {
-              label: "Desarrollo de Software",
-              href: "/services/software-development",
-              description: "Aplicaciones web y móviles escalables con las mejores tecnologías.",
-              icon: "code",
-            },
-            {
-              label: "Soluciones de IA",
-              href: "/services/ai-solutions",
-              description: "Inteligencia artificial integrada en el ADN de tu producto.",
-              icon: "brain",
-            },
-            {
-              label: "Diseño UX/UI",
-              href: "/services/ux-ui-design",
-              description: "Interfaces intuitivas que convierten usuarios en clientes.",
-              icon: "palette",
-            },
-          ],
-        },
-        {
-          title: "Infraestructura",
-          links: [
-            {
-              label: "Cloud & DevOps",
-              href: "/services/cloud-devops",
-              description: "Arquitectura cloud moderna, CI/CD y escalabilidad automática.",
-              icon: "cloud",
-            },
-            {
-              label: "Consultoría",
-              href: "/services/consulting",
-              description: "Estrategia técnica y acompañamiento para decisiones clave.",
-              icon: "lightbulb",
-            },
-          ],
-        },
-      ],
-      sidebar: {
-        title: "Recursos",
-        links: [
-          {
-            label: "Ver todos los servicios",
-            href: "/services",
-            description: "Explorá el catálogo completo de soluciones que ofrecemos.",
-            icon: "arrow-right",
-          },
-          {
-            label: "Casos de éxito",
-            href: "/work",
-            description: "Mirá cómo ayudamos a empresas reales a crecer.",
-            icon: "rocket",
-          },
-          {
-            label: "Solicitar una demo",
-            href: "/contact",
-            description: "Agendá una reunión y te mostramos todo en vivo.",
-            icon: "phone",
-          },
-        ],
-      },
-    },
-  },
-  {
-    label: "Industrias",
-    href: "/industries",
-    megaMenu: {
-      groups: [
-        {
-          title: "Sectores",
-          links: [
-            {
-              label: "Fintech",
-              href: "/industries/fintech",
-              description: "Soluciones que entienden PCI-DSS, regulaciones y pagos.",
-              icon: "banknote",
-            },
-            {
-              label: "Healthcare",
-              href: "/industries/healthcare",
-              description: "Plataformas compatibles con HIPAA, HL7 y FHIR.",
-              icon: "heart-pulse",
-            },
-            {
-              label: "Retail & E-commerce",
-              href: "/industries/retail-ecommerce",
-              description: "Experiencias de compra que convierten y escalan.",
-              icon: "shopping-cart",
-            },
-            {
-              label: "SaaS & Startups",
-              href: "/industries/saas-startups",
-              description: "De la idea al MVP en tiempo récord.",
-              icon: "rocket",
-            },
-          ],
-        },
-      ],
-      sidebar: {
-        title: "Más información",
-        links: [
-          {
-            label: "Ver todas las industrias",
-            href: "/industries",
-            description: "Descubrí todos los sectores donde tenemos experiencia.",
-            icon: "building",
-          },
-          {
-            label: "¿No ves tu industria?",
-            href: "/contact",
-            description: "Contanos tu caso y armamos una solución a medida.",
-            icon: "lightbulb",
-          },
-        ],
-      },
-    },
-  },
-  {
-    label: "Casos de éxito",
-    href: "/work",
-  },
-  {
-    label: "Nosotros",
-    href: "/about",
-  },
-  {
-    label: "Blog",
-    href: "/blog",
-  },
-];
-
-/**
- * Footer link columns
- */
 export interface FooterColumn {
   title: string;
   links: { label: string; href: string }[];
 }
 
-export const FOOTER_COLUMNS: FooterColumn[] = [
-  {
-    title: "Servicios",
-    links: [
-      { label: "Desarrollo de Software", href: "/services/software-development" },
-      { label: "Soluciones de IA", href: "/services/ai-solutions" },
-      { label: "Cloud & DevOps", href: "/services/cloud-devops" },
-      { label: "Consultoría", href: "/services/consulting" },
-      { label: "Diseño UX/UI", href: "/services/ux-ui-design" },
-    ],
-  },
-  {
-    title: "Recursos",
-    links: [
-      { label: "Blog", href: "/blog" },
-      { label: "Casos de éxito", href: "/work" },
-      { label: "Contacto", href: "/contact" },
-      { label: "Carreras", href: "/careers" },
-    ],
-  },
-  {
-    title: "Compañía",
-    links: [
-      { label: "Sobre nosotros", href: "/about" },
-      { label: "Partners", href: "/partners" },
-      { label: "Industrias", href: "/industries" },
-    ],
-  },
-];
+// ── Navigation Items (i18n-aware) ───────────────────
 
-export const FOOTER_LEGAL_LINKS = [
-  { label: "Política de Privacidad", href: "/privacy" },
-  { label: "Términos de Servicio", href: "/terms" },
-] as const;
+export function getNavItems(lang: Lang): NavItem[] {
+  const t = useTranslations(lang);
+  const l = (href: string) => getLocalizedHref(href, lang);
+
+  return [
+    {
+      label: t("nav.services"),
+      href: l("/services"),
+      megaMenu: {
+        groups: [
+          {
+            title: t("nav.services.group.development"),
+            links: [
+              {
+                label: t("nav.services.software-development"),
+                href: l("/services/software-development"),
+                description: t("nav.services.software-development.desc"),
+                icon: "code",
+              },
+              {
+                label: t("nav.services.ai-solutions"),
+                href: l("/services/ai-solutions"),
+                description: t("nav.services.ai-solutions.desc"),
+                icon: "brain",
+              },
+              {
+                label: t("nav.services.ux-ui-design"),
+                href: l("/services/ux-ui-design"),
+                description: t("nav.services.ux-ui-design.desc"),
+                icon: "palette",
+              },
+            ],
+          },
+          {
+            title: t("nav.services.group.infrastructure"),
+            links: [
+              {
+                label: t("nav.services.cloud-devops"),
+                href: l("/services/cloud-devops"),
+                description: t("nav.services.cloud-devops.desc"),
+                icon: "cloud",
+              },
+              {
+                label: t("nav.services.consulting"),
+                href: l("/services/consulting"),
+                description: t("nav.services.consulting.desc"),
+                icon: "lightbulb",
+              },
+            ],
+          },
+        ],
+        sidebar: {
+          title: t("nav.services.sidebar.title"),
+          links: [
+            {
+              label: t("nav.services.sidebar.view-all"),
+              href: l("/services"),
+              description: t("nav.services.sidebar.view-all.desc"),
+              icon: "arrow-right",
+            },
+            {
+              label: t("nav.services.sidebar.cases"),
+              href: l("/work"),
+              description: t("nav.services.sidebar.cases.desc"),
+              icon: "rocket",
+            },
+            {
+              label: t("nav.services.sidebar.demo"),
+              href: l("/contact"),
+              description: t("nav.services.sidebar.demo.desc"),
+              icon: "phone",
+            },
+          ],
+        },
+      },
+    },
+    {
+      label: t("nav.industries"),
+      href: l("/industries"),
+      megaMenu: {
+        groups: [
+          {
+            title: t("nav.industries.group.sectors"),
+            links: [
+              {
+                label: t("nav.industries.fintech"),
+                href: l("/industries/fintech"),
+                description: t("nav.industries.fintech.desc"),
+                icon: "banknote",
+              },
+              {
+                label: t("nav.industries.healthcare"),
+                href: l("/industries/healthcare"),
+                description: t("nav.industries.healthcare.desc"),
+                icon: "heart-pulse",
+              },
+              {
+                label: t("nav.industries.retail"),
+                href: l("/industries/retail-ecommerce"),
+                description: t("nav.industries.retail.desc"),
+                icon: "shopping-cart",
+              },
+              {
+                label: t("nav.industries.saas"),
+                href: l("/industries/saas-startups"),
+                description: t("nav.industries.saas.desc"),
+                icon: "rocket",
+              },
+            ],
+          },
+        ],
+        sidebar: {
+          title: t("nav.industries.sidebar.title"),
+          links: [
+            {
+              label: t("nav.industries.sidebar.view-all"),
+              href: l("/industries"),
+              description: t("nav.industries.sidebar.view-all.desc"),
+              icon: "building",
+            },
+            {
+              label: t("nav.industries.sidebar.custom"),
+              href: l("/contact"),
+              description: t("nav.industries.sidebar.custom.desc"),
+              icon: "lightbulb",
+            },
+          ],
+        },
+      },
+    },
+    {
+      label: t("nav.work"),
+      href: l("/work"),
+    },
+    {
+      label: t("nav.about"),
+      href: l("/about"),
+    },
+    {
+      label: t("nav.blog"),
+      href: l("/blog"),
+    },
+  ];
+}
+
+// ── Footer Items (i18n-aware) ───────────────────────
+
+export function getFooterColumns(lang: Lang): FooterColumn[] {
+  const t = useTranslations(lang);
+  const l = (href: string) => getLocalizedHref(href, lang);
+
+  return [
+    {
+      title: t("footer.col.services"),
+      links: [
+        { label: t("footer.col.services.software"), href: l("/services/software-development") },
+        { label: t("footer.col.services.ai"), href: l("/services/ai-solutions") },
+        { label: t("footer.col.services.cloud"), href: l("/services/cloud-devops") },
+        { label: t("footer.col.services.consulting"), href: l("/services/consulting") },
+        { label: t("footer.col.services.design"), href: l("/services/ux-ui-design") },
+      ],
+    },
+    {
+      title: t("footer.col.resources"),
+      links: [
+        { label: t("footer.col.resources.blog"), href: l("/blog") },
+        { label: t("footer.col.resources.work"), href: l("/work") },
+        { label: t("footer.col.resources.contact"), href: l("/contact") },
+        { label: t("footer.col.resources.careers"), href: l("/careers") },
+      ],
+    },
+    {
+      title: t("footer.col.company"),
+      links: [
+        { label: t("footer.col.company.about"), href: l("/about") },
+        { label: t("footer.col.company.partners"), href: l("/partners") },
+        { label: t("footer.col.company.industries"), href: l("/industries") },
+      ],
+    },
+  ];
+}
+
+export function getFooterLegalLinks(lang: Lang) {
+  const t = useTranslations(lang);
+  const l = (href: string) => getLocalizedHref(href, lang);
+
+  return [
+    { label: t("footer.legal.privacy"), href: l("/privacy") },
+    { label: t("footer.legal.terms"), href: l("/terms") },
+  ];
+}
+
+// ── Static constants (language-independent) ─────────
 
 export const SOCIAL_LINKS = [
   { label: "LinkedIn", href: "https://linkedin.com/company/bytek", icon: "linkedin" },

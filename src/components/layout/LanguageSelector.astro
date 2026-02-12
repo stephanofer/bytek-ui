@@ -1,15 +1,17 @@
 ---
 /**
- * LanguageSelector — Dropdown for switching site language
+ * LanguageSelector — Dropdown for switching site language (i18n-aware)
  *
- * Renders a globe icon with a dropdown to pick between ES/EN.
- * Uses vanilla JS for the toggle (no framework needed for this).
- * Styled to match the header design — minimal, clean, accessible.
+ * UX improvements over previous version:
+ * - Actually navigates to the equivalent page in the other language
+ * - Shows current language with visual indicator
+ * - Uses <a> tags instead of buttons (real navigation, not JS-dependent)
+ * - Hover on non-selected option shows "Switch to X" tooltip via title
+ * - Clean, minimal design matching the header
  */
 import { getIcon } from "@lib/icons";
-import { SITE } from "@lib/constants";
-import Global from '@/assets/icons/global.svg';
-
+import { getLangFromUrl, useTranslations, getLocalizedPath, languages } from "@/i18n/utils";
+import Global from "@/assets/icons/global.svg";
 
 interface Props {
   class?: string;
@@ -17,11 +19,18 @@ interface Props {
 
 const { class: className = "" } = Astro.props;
 
-const currentLang = SITE.defaultLanguage;
-const languages = [
-  { code: "es", label: "ES", fullLabel: "Español" },
-  { code: "en", label: "EN", fullLabel: "English" },
-];
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const currentPath = Astro.url.pathname;
+
+// Build language options with their target URLs
+const langOptions = Object.entries(languages).map(([code, fullLabel]) => ({
+  code,
+  label: code.toUpperCase(),
+  fullLabel,
+  href: getLocalizedPath(currentPath, code as keyof typeof languages),
+  isCurrent: code === lang,
+}));
 ---
 
 <div class:list={["relative", className]} data-language-selector>
@@ -30,14 +39,14 @@ const languages = [
     class="flex items-center gap-1.5 p-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors duration-200 cursor-pointer"
     aria-expanded="false"
     aria-haspopup="listbox"
-    aria-label="Seleccionar idioma"
+    aria-label={t("a11y.lang.select")}
     data-lang-trigger
   >
     <span class="w-5 h-5" aria-hidden="true">
-      <Global width={20} height={20}/>
+      <Global width={20} height={20} />
     </span>
     <span class="text-sm font-medium uppercase" data-lang-current>
-      {currentLang}
+      {lang}
     </span>
     <span class="w-3.5 h-3.5 transition-transform duration-200" aria-hidden="true" data-lang-chevron>
       <Fragment set:html={getIcon("chevron-down")} />
@@ -46,37 +55,38 @@ const languages = [
 
   <!-- Dropdown -->
   <div
-    class="absolute right-0 top-full mt-1.5 min-w-[140px] bg-white rounded-xl border border-neutral-200 shadow-lg shadow-neutral-900/5 opacity-0 invisible translate-y-1 transition-all duration-200 ease-(--ease-snappy) z-50"
+    class="absolute right-0 top-full mt-1.5 min-w-[160px] bg-white rounded-xl border border-neutral-200 shadow-lg shadow-neutral-900/5 opacity-0 invisible translate-y-1 transition-all duration-200 ease-(--ease-snappy) z-50"
     role="listbox"
-    aria-label="Idiomas disponibles"
+    aria-label={t("a11y.lang.available")}
     data-lang-dropdown
   >
     <div class="p-1.5">
-      {languages.map((lang) => (
-        <button
-          type="button"
+      {langOptions.map((option) => (
+        <a
+          href={option.href}
           role="option"
-          aria-selected={lang.code === currentLang}
+          aria-selected={option.isCurrent ? "true" : "false"}
+          title={option.isCurrent ? option.fullLabel : `${t("lang.switch-to")} ${option.fullLabel}`}
           class:list={[
-            "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-colors duration-150 cursor-pointer",
-            lang.code === currentLang
-              ? "bg-neutral-100 text-neutral-900 font-medium"
+            "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 no-underline",
+            option.isCurrent
+              ? "bg-primary-50 text-primary-700 font-medium cursor-default"
               : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
           ]}
-          data-lang-option={lang.code}
+          data-lang-option={option.code}
         >
           <span class="font-medium uppercase text-xs tracking-wide w-6">
-            {lang.label}
+            {option.label}
           </span>
-          <span>{lang.fullLabel}</span>
-          {lang.code === currentLang && (
-            <span class="ml-auto text-primary-500">
+          <span class="flex-1">{option.fullLabel}</span>
+          {option.isCurrent && (
+            <span class="text-primary-500 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             </span>
           )}
-        </button>
+        </a>
       ))}
     </div>
   </div>
@@ -134,17 +144,6 @@ const languages = [
       // Close on Escape
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") close();
-      });
-
-      // Handle language option click
-      const options = selector.querySelectorAll<HTMLButtonElement>("[data-lang-option]");
-      options.forEach((option) => {
-        option.addEventListener("click", () => {
-          const langCode = option.dataset.langOption;
-          // For now, just log - i18n routing will be implemented later
-          console.log(`Language selected: ${langCode}`);
-          close();
-        });
       });
     });
   }

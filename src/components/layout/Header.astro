@@ -1,21 +1,27 @@
 ---
 /**
- * Header — Bytek Main Navigation
+ * Header — Bytek Main Navigation (i18n-aware)
  *
  * Features:
  * - Sticky header with backdrop blur on scroll
- * - Full-width mega menu dropdowns (inspired by Remote) with:
+ * - Full-width mega menu dropdowns with:
  *   • Grouped links with icons and descriptions
  *   • Optional sidebar column for quick links
  *   • Smooth enter/exit transitions
  * - Fully responsive mobile menu with accordions
  * - Language selector + CTA button always visible
  * - Accessible: ARIA attributes, keyboard nav, focus management
+ * - All text translated via t() — all hrefs localized
  */
-import { NAV_ITEMS } from "@lib/constants";
+import { getNavItems } from "@lib/constants";
 import { getIcon } from "@lib/icons";
+import { getLangFromUrl, useTranslations, getLocalizedHref } from "@/i18n/utils";
 import Button from "@components/ui/Button.astro";
 import LanguageSelector from "@components/layout/LanguageSelector.astro";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const NAV_ITEMS = getNavItems(lang);
 ---
 
 <header
@@ -26,13 +32,13 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
     <div class="container-bytek">
       <nav
         class="flex items-center justify-between h-[72px]"
-        aria-label="Navegación principal"
+        aria-label={t("a11y.nav.main")}
       >
         <!-- ═══ Logo ═══ -->
         <a
-          href="/"
+          href={getLocalizedHref("/", lang)}
           class="flex items-center gap-2.5 shrink-0 relative z-50"
-          aria-label="Bytek — Ir al inicio"
+          aria-label={t("a11y.logo")}
         >
           <div class="flex items-center gap-2">
             <span class="font-display font-semibold text-xl tracking-tight text-neutral-900">
@@ -74,13 +80,13 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
         <div class="hidden lg:flex items-center gap-2">
           <LanguageSelector />
           <Button
-            href="/contact"
+            href={getLocalizedHref("/contact", lang)}
             variant="primary"
             size="md"
             icon={getIcon("arrow-right")}
             iconPosition="right"
           >
-            Contáctanos
+            {t("nav.cta")}
           </Button>
         </div>
 
@@ -89,8 +95,10 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
           type="button"
           class="lg:hidden relative z-50 flex items-center justify-center w-10 h-10 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 cursor-pointer"
           aria-expanded="false"
-          aria-label="Abrir menú de navegación"
+          aria-label={t("a11y.nav.open-menu")}
           data-mobile-toggle
+          data-label-open={t("a11y.nav.open-menu")}
+          data-label-close={t("a11y.nav.close-menu")}
         >
           <span class="w-5 h-5" data-icon-menu>
             <Fragment set:html={getIcon("menu")} />
@@ -110,14 +118,14 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
         class="absolute left-0 right-0 top-full bg-white border-b border-neutral-200 shadow-xl shadow-neutral-900/5 opacity-0 invisible translate-y-0 transition-all duration-250 ease-(--ease-snappy) hidden lg:block"
         data-mega-panel={idx}
         role="region"
-        aria-label={`Submenú de ${item.label}`}
+        aria-label={`${t("a11y.nav.submenu")} ${item.label}`}
       >
         <div class="container-bytek py-8">
           <div class:list={[
             "grid gap-0",
             item.megaMenu.sidebar ? "grid-cols-[1fr_280px]" : "grid-cols-1",
           ]}>
-            {/* ── Main content: groups (descriptions hidden by default, revealed on hover) ── */}
+            {/* ── Main content: groups ── */}
             <div class="flex flex-col" data-mega-main>
               {item.megaMenu.groups.map((group, groupIdx) => (
                 <div class:list={[
@@ -162,7 +170,7 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
               ))}
             </div>
 
-            {/* ── Sidebar (independent: hover shows description per-item) ── */}
+            {/* ── Sidebar ── */}
             {item.megaMenu.sidebar && (
               <div class="border-l border-neutral-100 pl-8 ml-8" data-mega-sidebar>
                 <p class="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3">
@@ -219,7 +227,7 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
   >
     <div class="pt-[72px] h-full overflow-y-auto">
       <div class="container-bytek py-6">
-        <nav class="flex flex-col gap-1" aria-label="Navegación móvil">
+        <nav class="flex flex-col gap-1" aria-label={t("a11y.nav.mobile")}>
           {NAV_ITEMS.map((item) =>
             item.megaMenu ? (
               <div data-mobile-accordion>
@@ -289,18 +297,18 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
         <!-- Mobile Bottom Actions -->
         <div class="mt-8 pt-6 border-t border-neutral-200 flex flex-col gap-4">
           <div class="flex items-center justify-between">
-            <span class="text-sm text-neutral-500">Idioma</span>
+            <span class="text-sm text-neutral-500">{t("a11y.lang.label")}</span>
             <LanguageSelector />
           </div>
           <Button
-            href="/contact"
+            href={getLocalizedHref("/contact", lang)}
             variant="primary"
             size="lg"
             fullWidth
             icon={getIcon("arrow-right")}
             iconPosition="right"
           >
-            Contáctanos
+            {t("nav.cta")}
           </Button>
         </div>
       </div>
@@ -330,6 +338,10 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
     let activeMegaIndex: number | null = null;
     let closeTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    // Read localized aria-labels from data attributes
+    const labelOpen = mobileToggle.dataset.labelOpen || "Open menu";
+    const labelClose = mobileToggle.dataset.labelClose || "Close menu";
+
     /* ── Scroll behavior ──────────────────────────── */
     function handleScroll() {
       const scrolled = window.scrollY > 10;
@@ -357,7 +369,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
         closeTimeout = null;
       }
 
-      // Close any currently open panel
       if (activeMegaIndex !== null && activeMegaIndex !== index) {
         closeMegaImmediate(activeMegaIndex);
       }
@@ -380,7 +391,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
         backdrop.classList.add("opacity-100", "visible");
       }
 
-      // Ensure header is solid when mega is open
       header.classList.add("bg-white");
       headerBorder.classList.add("border-neutral-200/70");
       headerBorder.classList.remove("border-transparent");
@@ -399,7 +409,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
       panel.classList.add("opacity-0", "invisible");
       panel.classList.remove("opacity-100", "visible");
 
-      // Reset all descriptions in this panel when closing
       const mainDescs = panel.querySelectorAll<HTMLElement>("[data-mega-link-desc]");
       gsap.set(mainDescs, { height: 0, opacity: 0, marginTop: 0 });
 
@@ -436,7 +445,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
       }
     }
 
-    // Wire up triggers
     megaTriggers.forEach((trigger, index) => {
       trigger.addEventListener("mouseenter", () => {
         openMega(index);
@@ -455,7 +463,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
       });
     });
 
-    // Wire up panels (keep open while hovering panel)
     megaPanels.forEach((panel) => {
       panel.addEventListener("mouseenter", () => {
         cancelClose();
@@ -466,12 +473,10 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
       });
     });
 
-    // Backdrop click closes mega
     if (backdrop) {
       backdrop.addEventListener("click", closeAllMega);
     }
 
-    // Close on Escape
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (activeMegaIndex !== null) closeAllMega();
@@ -479,7 +484,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
       }
     });
 
-    // Close mega when clicking outside header
     document.addEventListener("click", (e) => {
       if (activeMegaIndex === null) return;
       const target = e.target as Node;
@@ -577,10 +581,7 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
     function toggleMobile() {
       isMobileOpen = !isMobileOpen;
       mobileToggle.setAttribute("aria-expanded", String(isMobileOpen));
-      mobileToggle.setAttribute(
-        "aria-label",
-        isMobileOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"
-      );
+      mobileToggle.setAttribute("aria-label", isMobileOpen ? labelClose : labelOpen);
 
       if (isMobileOpen) {
         mobileMenu.classList.remove("opacity-0", "invisible");
@@ -603,7 +604,6 @@ import LanguageSelector from "@components/layout/LanguageSelector.astro";
 
     mobileToggle.addEventListener("click", toggleMobile);
 
-    // Close mobile on link click
     mobileMenu.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         if (isMobileOpen) toggleMobile();

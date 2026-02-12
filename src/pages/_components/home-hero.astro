@@ -1,0 +1,49 @@
+---
+/**
+ * HomeHero — Shared hero section for the home page
+ *
+ * Used by both / (es) and /en/ pages.
+ * Receives `lang` prop and uses t() for all text.
+ */
+import { useTranslations, getLocalizedHref, type Lang } from "@/i18n/utils";
+import { getIcon } from "@lib/icons";
+import Button from "@components/ui/Button.astro";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<!-- Hero Section -->
+<section class="container-bytek py-20 sm:py-32">
+  <div class="max-w-3xl">
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-neutral-900 leading-[1.1] mb-6">
+      {t("hero.title").split(lang === "es" ? "transforman negocios" : "transform businesses")[0]}
+      <span class="text-primary-500">{lang === "es" ? "transforman negocios" : "transform businesses"}</span>
+    </h1>
+    <p class="text-lg sm:text-xl text-neutral-600 leading-relaxed mb-10 max-w-2xl">
+      {t("hero.subtitle")}
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <Button
+        href={getLocalizedHref("/contact", lang)}
+        variant="primary"
+        size="lg"
+        icon={getIcon("arrow-right")}
+        iconPosition="right"
+      >
+        {t("hero.cta.primary")}
+      </Button>
+      <Button
+        href={getLocalizedHref("/work", lang)}
+        variant="outline"
+        size="lg"
+      >
+        {t("hero.cta.secondary")}
+      </Button>
+    </div>
+  </div>
+</section>

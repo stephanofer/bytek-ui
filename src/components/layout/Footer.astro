@@ -1,18 +1,23 @@
 ---
 /**
- * Footer — Bytek Global Footer
+ * Footer — Bytek Global Footer (i18n-aware)
  *
- * Inspired by Cloudflare's dark footer design, elevated with:
  * - Dark background with subtle contrast
- * - Organized link columns from constants
+ * - Organized link columns from constants (translated)
  * - Social media links with icons
  * - Legal links and copyright
  * - Responsive grid layout
  * - CTA section before footer links
  */
-import { FOOTER_COLUMNS, FOOTER_LEGAL_LINKS, SOCIAL_LINKS, SITE } from "@lib/constants";
+import { getFooterColumns, getFooterLegalLinks, SOCIAL_LINKS, SITE } from "@lib/constants";
 import { getIcon } from "@lib/icons";
+import { getLangFromUrl, useTranslations, getLocalizedHref } from "@/i18n/utils";
 import Button from "@components/ui/Button.astro";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const FOOTER_COLUMNS = getFooterColumns(lang);
+const FOOTER_LEGAL_LINKS = getFooterLegalLinks(lang);
 ---
 
 <footer class="bg-neutral-950 text-neutral-400" role="contentinfo">
@@ -22,31 +27,30 @@ import Button from "@components/ui/Button.astro";
       <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div class="max-w-lg">
           <h2 class="text-2xl sm:text-3xl font-display font-semibold text-white mb-3">
-            ¿Tenés un proyecto en mente?
+            {t("footer.cta.title")}
           </h2>
           <p class="text-neutral-400 text-base leading-relaxed">
-            Contanos tu idea y te ayudamos a convertirla en un producto digital de alto
-            impacto. Sin compromiso.
+            {t("footer.cta.description")}
           </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-3">
           <Button
-            href="/contact"
+            href={getLocalizedHref("/contact", lang)}
             variant="primary"
             size="lg"
             class="!bg-white !text-neutral-900 hover:!bg-neutral-100"
             icon={getIcon("arrow-right")}
             iconPosition="right"
           >
-            Hablemos
+            {t("footer.cta.primary")}
           </Button>
           <Button
-            href="/work"
+            href={getLocalizedHref("/work", lang)}
             variant="outline"
             size="lg"
             class="!border-neutral-700 !text-neutral-300 hover:!bg-neutral-800 hover:!border-neutral-600 hover:!text-white"
           >
-            Ver nuestro trabajo
+            {t("footer.cta.secondary")}
           </Button>
         </div>
       </div>
@@ -59,7 +63,7 @@ import Button from "@components/ui/Button.astro";
       <!-- Brand Column -->
       <div class="lg:col-span-4">
         <!-- Logo -->
-        <a href="/" class="inline-flex items-center gap-2.5 mb-5" aria-label="Bytek — Ir al inicio">
+        <a href={getLocalizedHref("/", lang)} class="inline-flex items-center gap-2.5 mb-5" aria-label={t("a11y.logo")}>
           <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <span class="text-neutral-900 font-display font-bold text-sm tracking-tight">B</span>
           </div>
@@ -68,8 +72,7 @@ import Button from "@components/ui/Button.astro";
           </span>
         </a>
         <p class="text-neutral-500 text-sm leading-relaxed max-w-xs mb-6">
-          Construimos productos digitales escalables y de alto rendimiento.
-          Software development & IT consulting.
+          {t("footer.brand.description")}
         </p>
 
         <!-- Social Links -->
@@ -114,7 +117,7 @@ import Button from "@components/ui/Button.astro";
       <!-- Contact Column -->
       <div class="lg:col-span-2">
         <h3 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-          Contacto
+          {t("footer.contact.title")}
         </h3>
         <ul class="flex flex-col gap-3" role="list">
           <li>
@@ -138,7 +141,7 @@ import Button from "@components/ui/Button.astro";
     <div class="container-bytek py-6">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <p class="text-xs text-neutral-600">
-          &copy; {new Date().getFullYear()} {SITE.name}. Todos los derechos reservados.
+          &copy; {new Date().getFullYear()} {SITE.name}. {t("footer.rights")}.
         </p>
         <div class="flex items-center gap-6">
           {FOOTER_LEGAL_LINKS.map((link) => (

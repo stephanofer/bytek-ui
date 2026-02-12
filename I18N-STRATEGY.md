@@ -25,12 +25,7 @@ Inglés:                bytek.com/en/services/software-development
 
 | Estrategia | Ejemplo | Veredicto |
 |---|---|---|
-| Prefijo en todos (`/es/`, `/en/`) | `bytek.com/es/services` | Limpio y simétrico, pero rompe todas las URLs existentes y agrega fricción innecesaria al idioma principal |
 | Sin prefijo en default + prefijo en otros | `bytek.com/services` + `bytek.com/en/services` | **✅ Elegida.** El idioma principal mantiene URLs limpias. El secundario se identifica claramente |
-| Subdominios (`en.bytek.com`) | Más complejo, requiere configuración DNS extra | Overkill para 2 idiomas |
-| Dominio separado (`bytek.co.uk`) | Otro nivel de complejidad | Para empresas con presencia local fuerte en cada país |
-
-**Esta es la misma estrategia que usa Remote (`remote.com` → inglés default, `remote.com/es-es/` → español).** Solo que nosotros invertimos el default porque nuestro mercado principal es hispanohablante.
 
 ### Estructura de carpetas en `src/pages/`
 
@@ -255,76 +250,6 @@ const t = useTranslations(lang);
 
 ---
 
-## 4. Content Collections para contenido largo (Blog, Cases)
-
-Para contenido como blog posts o case studies, las traducciones van en Content Collections organizadas por idioma.
-
-### Estructura
-
-```
-src/content/
-├── content.config.ts
-├── blog/
-│   ├── es/
-│   │   ├── como-escalar-tu-startup.mdx
-│   │   └── ia-en-fintech.mdx
-│   └── en/
-│       ├── how-to-scale-your-startup.mdx
-│       └── ai-in-fintech.mdx
-└── work/
-    ├── es/
-    │   └── caso-fintech-app.mdx
-    └── en/
-        └── fintech-app-case.mdx
-```
-
-### `src/content/content.config.ts`
-
-```ts
-import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
-
-const blog = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    date: z.coerce.date(),
-    lang: z.enum(["es", "en"]),
-    // Slug del post equivalente en el otro idioma (para hreflang)
-    translationSlug: z.string().optional(),
-    draft: z.boolean().default(false),
-  }),
-});
-
-export const collections = { blog };
-```
-
-### Consultar posts por idioma
-
-```astro
----
-// src/pages/blog/index.astro
-import { getCollection } from "astro:content";
-
-const posts = await getCollection("blog", ({ data }) => {
-  return data.lang === "es" && !data.draft;
-});
----
-```
-
-```astro
----
-// src/pages/en/blog/index.astro
-import { getCollection } from "astro:content";
-
-const posts = await getCollection("blog", ({ data }) => {
-  return data.lang === "en" && !data.draft;
-});
----
-```
-
----
 
 ## 5. SEO Multilingüe
 
@@ -447,22 +372,6 @@ Ejemplo de output:
 | ✅ OG tags traducidos | `og:title`, `og:description`, `og:locale` |
 
 ---
-
-## 6. Detección de idioma: ¿SÍ o NO?
-
-### La recomendación: NO hacer auto-redirect por geolocalización
-
-**Es así de simple.** Y te explico por qué:
-
-#### Problemas de auto-detectar y redirigir
-
-| Problema | Explicación |
-|---|---|
-| **Google indexa MAL** | Googlebot rastrea desde EE.UU. Si redirigís por geo, Google solo ve la versión inglés. Tus páginas en español desaparecen del index |
-| **VPNs y proxies** | Un argentino usando VPN de EE.UU. ve todo en inglés. Mala experiencia |
-| **Preferencia ≠ ubicación** | Un expat argentino en Alemania quiere ver tu sitio en español, no en alemán |
-| **Caching** | Cloudflare cachea la respuesta. Si el primer visitante es de EE.UU., TODOS los siguientes ven la versión en inglés hasta que expire el cache |
-| **URLs no compartibles** | Si alguien comparte `bytek.com` y el receptor ve otro idioma, es confuso |
 
 #### ¿Qué hacer entonces?
 
