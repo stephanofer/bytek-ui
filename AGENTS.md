@@ -9,14 +9,14 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Action                                                                | Skill           |
 
 | --------------------------------------------------------------------- | --------------- |
+When you need something related with SEO OPTIMIZATION                        | `seo-expert`|
+
 
 
 ## Non-negotiables
 
 - Never use barrel files 
-
 - Always use path aliases instead of imports
-
 - Always use pnpm as the package manager
 
 ## Tech Stack
@@ -26,7 +26,6 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | ---------- | ------------------ | -------------------------- |
 
 | Website         | `src/`             | Astro, Tailwind, GSAP  |
-
 | Error Monitoring | Sentry | Sentry SDK |
 
 
@@ -56,6 +55,7 @@ src/
       components/                 # About section components
         team-member.astro         # Static team member cards
         contact-form.svelte       # Client island using Svelte
+    (OTHERS PAGES LIKE SERVICES, CONTACT, ETC.)
     index.astro                   # Home page
     404.astro                     # 404 page
   components/                     # ONLY for 2+ page usage
