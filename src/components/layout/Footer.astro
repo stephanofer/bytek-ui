@@ -1,0 +1,156 @@
+---
+/**
+ * Footer — Bytek Global Footer
+ *
+ * Inspired by Cloudflare's dark footer design, elevated with:
+ * - Dark background with subtle contrast
+ * - Organized link columns from constants
+ * - Social media links with icons
+ * - Legal links and copyright
+ * - Responsive grid layout
+ * - CTA section before footer links
+ */
+import { FOOTER_COLUMNS, FOOTER_LEGAL_LINKS, SOCIAL_LINKS, SITE } from "@lib/constants";
+import { getIcon } from "@lib/icons";
+import Button from "@components/ui/Button.astro";
+---
+
+<footer class="bg-neutral-950 text-neutral-400" role="contentinfo">
+  <!-- ═══ CTA Section ═══ -->
+  <div class="border-b border-neutral-800/60">
+    <div class="container-bytek py-16 sm:py-20">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div class="max-w-lg">
+          <h2 class="text-2xl sm:text-3xl font-display font-semibold text-white mb-3">
+            ¿Tenés un proyecto en mente?
+          </h2>
+          <p class="text-neutral-400 text-base leading-relaxed">
+            Contanos tu idea y te ayudamos a convertirla en un producto digital de alto
+            impacto. Sin compromiso.
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <Button
+            href="/contact"
+            variant="primary"
+            size="lg"
+            class="!bg-white !text-neutral-900 hover:!bg-neutral-100"
+            icon={getIcon("arrow-right")}
+            iconPosition="right"
+          >
+            Hablemos
+          </Button>
+          <Button
+            href="/work"
+            variant="outline"
+            size="lg"
+            class="!border-neutral-700 !text-neutral-300 hover:!bg-neutral-800 hover:!border-neutral-600 hover:!text-white"
+          >
+            Ver nuestro trabajo
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Main Footer Content ═══ -->
+  <div class="container-bytek py-12 sm:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+      <!-- Brand Column -->
+      <div class="lg:col-span-4">
+        <!-- Logo -->
+        <a href="/" class="inline-flex items-center gap-2.5 mb-5" aria-label="Bytek — Ir al inicio">
+          <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <span class="text-neutral-900 font-display font-bold text-sm tracking-tight">B</span>
+          </div>
+          <span class="font-display font-semibold text-xl tracking-tight text-white">
+            bytek
+          </span>
+        </a>
+        <p class="text-neutral-500 text-sm leading-relaxed max-w-xs mb-6">
+          Construimos productos digitales escalables y de alto rendimiento.
+          Software development & IT consulting.
+        </p>
+
+        <!-- Social Links -->
+        <div class="flex items-center gap-3">
+          {SOCIAL_LINKS.map((social) => (
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-center w-9 h-9 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-800 transition-colors duration-200"
+              aria-label={social.label}
+            >
+              <span class="w-4.5 h-4.5">
+                <Fragment set:html={getIcon(social.icon)} />
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Link Columns -->
+      {FOOTER_COLUMNS.map((column) => (
+        <div class="lg:col-span-2">
+          <h3 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
+            {column.title}
+          </h3>
+          <ul class="flex flex-col gap-2.5" role="list">
+            {column.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm text-neutral-500 hover:text-white transition-colors duration-200"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <!-- Contact Column -->
+      <div class="lg:col-span-2">
+        <h3 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
+          Contacto
+        </h3>
+        <ul class="flex flex-col gap-3" role="list">
+          <li>
+            <a
+              href="mailto:hello@bytek.com"
+              class="flex items-center gap-2 text-sm text-neutral-500 hover:text-white transition-colors duration-200"
+            >
+              <span class="w-4 h-4 shrink-0" aria-hidden="true">
+                <Fragment set:html={getIcon("mail")} />
+              </span>
+              hello@bytek.com
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Bottom Bar ═══ -->
+  <div class="border-t border-neutral-800/60">
+    <div class="container-bytek py-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-neutral-600">
+          &copy; {new Date().getFullYear()} {SITE.name}. Todos los derechos reservados.
+        </p>
+        <div class="flex items-center gap-6">
+          {FOOTER_LEGAL_LINKS.map((link) => (
+            <a
+              href={link.href}
+              class="text-xs text-neutral-600 hover:text-neutral-400 transition-colors duration-200"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

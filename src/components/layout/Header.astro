@@ -1,0 +1,651 @@
+---
+/**
+ * Header — Bytek Main Navigation
+ *
+ * Features:
+ * - Sticky header with backdrop blur on scroll
+ * - Full-width mega menu dropdowns (inspired by Remote) with:
+ *   • Grouped links with icons and descriptions
+ *   • Optional sidebar column for quick links
+ *   • Smooth enter/exit transitions
+ * - Fully responsive mobile menu with accordions
+ * - Language selector + CTA button always visible
+ * - Accessible: ARIA attributes, keyboard nav, focus management
+ */
+import { NAV_ITEMS } from "@lib/constants";
+import { getIcon } from "@lib/icons";
+import Button from "@components/ui/Button.astro";
+import LanguageSelector from "@components/layout/LanguageSelector.astro";
+---
+
+<header
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-(--ease-smooth) bg-white"
+  data-header
+>
+  <div class="border-b border-transparent transition-colors duration-300" data-header-border>
+    <div class="container-bytek">
+      <nav
+        class="flex items-center justify-between h-[72px]"
+        aria-label="Navegación principal"
+      >
+        <!-- ═══ Logo ═══ -->
+        <a
+          href="/"
+          class="flex items-center gap-2.5 shrink-0 relative z-50"
+          aria-label="Bytek — Ir al inicio"
+        >
+          <div class="flex items-center gap-2">
+            <span class="font-display font-semibold text-xl tracking-tight text-neutral-900">
+              Bytek
+            </span>
+          </div>
+        </a>
+
+        <!-- ═══ Desktop Navigation ═══ -->
+        <div class="hidden lg:flex items-center gap-1">
+          {NAV_ITEMS.map((item) =>
+            item.megaMenu ? (
+              <div class="relative" data-mega-dropdown>
+                <button
+                  type="button"
+                  class="flex items-center gap-1 px-3.5 py-2 text-sm font-medium text-neutral-600 rounded-lg transition-colors duration-200 cursor-pointer data-[active]:bg-neutral-100 data-[active]:text-neutral-900 hover:text-neutral-900 hover:bg-neutral-50"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  data-mega-trigger
+                >
+                  {item.label}
+                  <span class="w-3.5 h-3.5 transition-transform duration-200" aria-hidden="true" data-mega-chevron>
+                    <Fragment set:html={getIcon("chevron-down")} />
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <a
+                href={item.href}
+                class="px-3.5 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 rounded-lg hover:bg-neutral-50 transition-colors duration-200"
+              >
+                {item.label}
+              </a>
+            )
+          )}
+        </div>
+
+        <!-- ═══ Desktop Right Section ═══ -->
+        <div class="hidden lg:flex items-center gap-2">
+          <LanguageSelector />
+          <Button
+            href="/contact"
+            variant="primary"
+            size="md"
+            icon={getIcon("arrow-right")}
+            iconPosition="right"
+          >
+            Contáctanos
+          </Button>
+        </div>
+
+        <!-- ═══ Mobile Menu Toggle ═══ -->
+        <button
+          type="button"
+          class="lg:hidden relative z-50 flex items-center justify-center w-10 h-10 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 cursor-pointer"
+          aria-expanded="false"
+          aria-label="Abrir menú de navegación"
+          data-mobile-toggle
+        >
+          <span class="w-5 h-5" data-icon-menu>
+            <Fragment set:html={getIcon("menu")} />
+          </span>
+          <span class="w-5 h-5 hidden" data-icon-close>
+            <Fragment set:html={getIcon("x-close")} />
+          </span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ═══ Mega Menu Panels (Desktop) ═══ -->
+  {NAV_ITEMS.map((item, idx) =>
+    item.megaMenu && (
+      <div
+        class="absolute left-0 right-0 top-full bg-white border-b border-neutral-200 shadow-xl shadow-neutral-900/5 opacity-0 invisible translate-y-0 transition-all duration-250 ease-(--ease-snappy) hidden lg:block"
+        data-mega-panel={idx}
+        role="region"
+        aria-label={`Submenú de ${item.label}`}
+      >
+        <div class="container-bytek py-8">
+          <div class:list={[
+            "grid gap-0",
+            item.megaMenu.sidebar ? "grid-cols-[1fr_280px]" : "grid-cols-1",
+          ]}>
+            {/* ── Main content: groups (descriptions hidden by default, revealed on hover) ── */}
+            <div class="flex flex-col" data-mega-main>
+              {item.megaMenu.groups.map((group, groupIdx) => (
+                <div class:list={[
+                  groupIdx > 0 ? "border-t border-neutral-100 mt-5 pt-5" : "",
+                ]}>
+                  <p class="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3 px-1">
+                    {group.title}
+                  </p>
+                  <div class:list={[
+                    "grid gap-0.5",
+                    group.links.length <= 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                  ]}>
+                    {group.links.map((link) => (
+                      <a
+                        href={link.href}
+                        class="group/link flex items-start gap-3 p-3 rounded-xl hover:bg-neutral-50 transition-colors duration-150"
+                        data-mega-link
+                      >
+                        {link.icon && (
+                          <span class="w-5 h-5 mt-0.5 shrink-0 text-primary-500 transition-colors duration-150 group-hover/link:text-primary-600" data-mega-link-icon>
+                            <Fragment set:html={getIcon(link.icon)} />
+                          </span>
+                        )}
+                        <div class="min-w-0">
+                          <span class="block text-sm font-medium text-neutral-900 group-hover/link:text-primary-600 transition-colors duration-150">
+                            {link.label}
+                          </span>
+                          {link.description && (
+                            <span
+                              class="block text-xs text-neutral-500 leading-relaxed overflow-hidden"
+                              data-mega-link-desc
+                              style="height: 0; opacity: 0; margin-top: 0;"
+                            >
+                              {link.description}
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Sidebar (independent: hover shows description per-item) ── */}
+            {item.megaMenu.sidebar && (
+              <div class="border-l border-neutral-100 pl-8 ml-8" data-mega-sidebar>
+                <p class="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3">
+                  {item.megaMenu.sidebar.title}
+                </p>
+                <div class="flex flex-col gap-0.5">
+                  {item.megaMenu.sidebar.links.map((link) => (
+                    <a
+                      href={link.href}
+                      class="group/sidebar-link flex items-start gap-3 p-3 rounded-xl hover:bg-neutral-50 transition-colors duration-150"
+                      data-sidebar-link
+                    >
+                      {link.icon && (
+                        <span class="w-5 h-5 mt-0.5 shrink-0 text-neutral-400 transition-colors duration-150 group-hover/sidebar-link:text-primary-500" data-sidebar-link-icon>
+                          <Fragment set:html={getIcon(link.icon)} />
+                        </span>
+                      )}
+                      <div class="min-w-0">
+                        <span class="block text-sm font-medium text-neutral-600 group-hover/sidebar-link:text-neutral-900 transition-colors duration-150">
+                          {link.label}
+                        </span>
+                        {link.description && (
+                          <span
+                            class="block text-xs text-neutral-500 leading-relaxed overflow-hidden"
+                            data-sidebar-link-desc
+                            style="height: 0; opacity: 0; margin-top: 0;"
+                          >
+                            {link.description}
+                          </span>
+                        )}
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  )}
+
+  <!-- ═══ Backdrop overlay for mega menu ═══ -->
+  <div
+    class="fixed inset-0 top-[72px] bg-black/20 backdrop-blur-xs opacity-0 invisible transition-all duration-300 z-[-1] hidden lg:block"
+    data-mega-backdrop
+    aria-hidden="true"
+  ></div>
+
+  <!-- ═══ Mobile Menu Overlay ═══ -->
+  <div
+    class="fixed inset-0 top-0 bg-white z-40 opacity-0 invisible transition-all duration-300 ease-(--ease-snappy) lg:hidden"
+    data-mobile-menu
+  >
+    <div class="pt-[72px] h-full overflow-y-auto">
+      <div class="container-bytek py-6">
+        <nav class="flex flex-col gap-1" aria-label="Navegación móvil">
+          {NAV_ITEMS.map((item) =>
+            item.megaMenu ? (
+              <div data-mobile-accordion>
+                <button
+                  type="button"
+                  class="flex items-center justify-between w-full px-3 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-50 rounded-lg transition-colors duration-200 cursor-pointer"
+                  aria-expanded="false"
+                  data-mobile-accordion-trigger
+                >
+                  {item.label}
+                  <span class="w-4 h-4 text-neutral-400 transition-transform duration-200" data-mobile-accordion-chevron>
+                    <Fragment set:html={getIcon("chevron-down")} />
+                  </span>
+                </button>
+                <div
+                  class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-(--ease-snappy)"
+                  data-mobile-accordion-content
+                >
+                  <div class="overflow-hidden">
+                    <div class="pb-2">
+                      {item.megaMenu.groups.map((group) => (
+                        <div class="mt-2">
+                          <p class="px-3 py-1.5 text-xs font-semibold text-neutral-400 uppercase tracking-widest">
+                            {group.title}
+                          </p>
+                          <div class="flex flex-col gap-0.5">
+                            {group.links.map((link) => (
+                              <a
+                                href={link.href}
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-neutral-50 transition-colors duration-150"
+                              >
+                                {link.icon && (
+                                  <span class="w-5 h-5 shrink-0 text-primary-500">
+                                    <Fragment set:html={getIcon(link.icon)} />
+                                  </span>
+                                )}
+                                <div>
+                                  <span class="block text-sm font-medium text-neutral-800">
+                                    {link.label}
+                                  </span>
+                                  {link.description && (
+                                    <span class="block text-xs text-neutral-500 mt-0.5">
+                                      {link.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <a
+                href={item.href}
+                class="px-3 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-50 rounded-lg transition-colors duration-200"
+              >
+                {item.label}
+              </a>
+            )
+          )}
+        </nav>
+
+        <!-- Mobile Bottom Actions -->
+        <div class="mt-8 pt-6 border-t border-neutral-200 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-neutral-500">Idioma</span>
+            <LanguageSelector />
+          </div>
+          <Button
+            href="/contact"
+            variant="primary"
+            size="lg"
+            fullWidth
+            icon={getIcon("arrow-right")}
+            iconPosition="right"
+          >
+            Contáctanos
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Spacer to compensate for fixed header -->
+<div class="h-[72px]" aria-hidden="true"></div>
+
+<script>
+  import gsap from "gsap";
+
+  function initHeader() {
+    const header = document.querySelector<HTMLElement>("[data-header]");
+    const headerBorder = document.querySelector<HTMLElement>("[data-header-border]");
+    const mobileToggle = document.querySelector<HTMLButtonElement>("[data-mobile-toggle]");
+    const mobileMenu = document.querySelector<HTMLDivElement>("[data-mobile-menu]");
+    const iconMenu = document.querySelector<HTMLSpanElement>("[data-icon-menu]");
+    const iconClose = document.querySelector<HTMLSpanElement>("[data-icon-close]");
+    const backdrop = document.querySelector<HTMLDivElement>("[data-mega-backdrop]");
+
+    if (!header || !headerBorder || !mobileToggle || !mobileMenu || !iconMenu || !iconClose)
+      return;
+
+    let isMobileOpen = false;
+    let activeMegaIndex: number | null = null;
+    let closeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    /* ── Scroll behavior ──────────────────────────── */
+    function handleScroll() {
+      const scrolled = window.scrollY > 10;
+      if (scrolled) {
+        header.classList.add("bg-white/80", "backdrop-blur-xl");
+        headerBorder.classList.add("border-neutral-200/70");
+        headerBorder.classList.remove("border-transparent");
+      } else if (!isMobileOpen && activeMegaIndex === null) {
+        header.classList.remove("bg-white/80", "backdrop-blur-xl");
+        headerBorder.classList.remove("border-neutral-200/70");
+        headerBorder.classList.add("border-transparent");
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    /* ── Mega Menu (Desktop) ──────────────────────── */
+    const megaTriggers = document.querySelectorAll<HTMLButtonElement>("[data-mega-trigger]");
+    const megaPanels = document.querySelectorAll<HTMLDivElement>("[data-mega-panel]");
+
+    function openMega(index: number) {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+
+      // Close any currently open panel
+      if (activeMegaIndex !== null && activeMegaIndex !== index) {
+        closeMegaImmediate(activeMegaIndex);
+      }
+
+      activeMegaIndex = index;
+      const trigger = megaTriggers[index];
+      const panel = megaPanels[index];
+      if (!trigger || !panel) return;
+
+      trigger.setAttribute("aria-expanded", "true");
+      trigger.setAttribute("data-active", "");
+      const chevron = trigger.querySelector("[data-mega-chevron]");
+      if (chevron) chevron.classList.add("rotate-180");
+
+      panel.classList.remove("opacity-0", "invisible");
+      panel.classList.add("opacity-100", "visible");
+
+      if (backdrop) {
+        backdrop.classList.remove("opacity-0", "invisible");
+        backdrop.classList.add("opacity-100", "visible");
+      }
+
+      // Ensure header is solid when mega is open
+      header.classList.add("bg-white");
+      headerBorder.classList.add("border-neutral-200/70");
+      headerBorder.classList.remove("border-transparent");
+    }
+
+    function closeMegaImmediate(index: number) {
+      const trigger = megaTriggers[index];
+      const panel = megaPanels[index];
+      if (!trigger || !panel) return;
+
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.removeAttribute("data-active");
+      const chevron = trigger.querySelector("[data-mega-chevron]");
+      if (chevron) chevron.classList.remove("rotate-180");
+
+      panel.classList.add("opacity-0", "invisible");
+      panel.classList.remove("opacity-100", "visible");
+
+      // Reset all descriptions in this panel when closing
+      const mainDescs = panel.querySelectorAll<HTMLElement>("[data-mega-link-desc]");
+      gsap.set(mainDescs, { height: 0, opacity: 0, marginTop: 0 });
+
+      const sidebarDescs = panel.querySelectorAll<HTMLElement>("[data-sidebar-link-desc]");
+      gsap.set(sidebarDescs, { height: 0, opacity: 0, marginTop: 0 });
+
+      const sidebarIcons = panel.querySelectorAll<HTMLElement>("[data-sidebar-link-icon]");
+      gsap.set(sidebarIcons, { scale: 1, rotate: 0 });
+    }
+
+    function closeAllMega() {
+      if (activeMegaIndex === null) return;
+      closeMegaImmediate(activeMegaIndex);
+      activeMegaIndex = null;
+
+      if (backdrop) {
+        backdrop.classList.add("opacity-0", "invisible");
+        backdrop.classList.remove("opacity-100", "visible");
+      }
+
+      handleScroll();
+    }
+
+    function scheduleClose() {
+      closeTimeout = setTimeout(() => {
+        closeAllMega();
+      }, 150);
+    }
+
+    function cancelClose() {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+    }
+
+    // Wire up triggers
+    megaTriggers.forEach((trigger, index) => {
+      trigger.addEventListener("mouseenter", () => {
+        openMega(index);
+      });
+
+      trigger.addEventListener("click", () => {
+        if (activeMegaIndex === index) {
+          closeAllMega();
+        } else {
+          openMega(index);
+        }
+      });
+
+      trigger.addEventListener("mouseleave", () => {
+        scheduleClose();
+      });
+    });
+
+    // Wire up panels (keep open while hovering panel)
+    megaPanels.forEach((panel) => {
+      panel.addEventListener("mouseenter", () => {
+        cancelClose();
+      });
+
+      panel.addEventListener("mouseleave", () => {
+        scheduleClose();
+      });
+    });
+
+    // Backdrop click closes mega
+    if (backdrop) {
+      backdrop.addEventListener("click", closeAllMega);
+    }
+
+    // Close on Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (activeMegaIndex !== null) closeAllMega();
+        if (isMobileOpen) toggleMobile();
+      }
+    });
+
+    // Close mega when clicking outside header
+    document.addEventListener("click", (e) => {
+      if (activeMegaIndex === null) return;
+      const target = e.target as Node;
+      if (!header.contains(target)) {
+        closeAllMega();
+      }
+    });
+
+    /* ── GSAP: Main section hover → reveal ALL descriptions ── */
+    megaPanels.forEach((panel) => {
+      const mainSection = panel.querySelector<HTMLElement>("[data-mega-main]");
+      if (!mainSection) return;
+
+      const allDescs = mainSection.querySelectorAll<HTMLElement>("[data-mega-link-desc]");
+      if (allDescs.length === 0) return;
+
+      let mainDescTween: gsap.core.Tween | null = null;
+
+      mainSection.addEventListener("mouseenter", () => {
+        if (mainDescTween) mainDescTween.kill();
+
+        mainDescTween = gsap.to(allDescs, {
+          height: "auto",
+          opacity: 1,
+          marginTop: 4,
+          duration: 0.35,
+          ease: "power2.out",
+          stagger: 0.03,
+        });
+      });
+
+      mainSection.addEventListener("mouseleave", () => {
+        if (mainDescTween) mainDescTween.kill();
+
+        mainDescTween = gsap.to(allDescs, {
+          height: 0,
+          opacity: 0,
+          marginTop: 0,
+          duration: 0.25,
+          ease: "power2.in",
+          stagger: 0.02,
+        });
+      });
+    });
+
+    /* ── GSAP: Sidebar hover → reveal description PER item + icon animation ── */
+    const sidebarLinks = document.querySelectorAll<HTMLElement>("[data-sidebar-link]");
+
+    sidebarLinks.forEach((link) => {
+      const desc = link.querySelector<HTMLElement>("[data-sidebar-link-desc]");
+      const icon = link.querySelector<HTMLElement>("[data-sidebar-link-icon]");
+
+      if (!desc) return;
+
+      link.addEventListener("mouseenter", () => {
+        gsap.to(desc, {
+          height: "auto",
+          opacity: 1,
+          marginTop: 4,
+          duration: 0.3,
+          ease: "power2.out",
+        });
+
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1.15,
+            rotate: -8,
+            duration: 0.35,
+            ease: "back.out(1.7)",
+          });
+        }
+      });
+
+      link.addEventListener("mouseleave", () => {
+        gsap.to(desc, {
+          height: 0,
+          opacity: 0,
+          marginTop: 0,
+          duration: 0.2,
+          ease: "power2.in",
+        });
+
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1,
+            rotate: 0,
+            duration: 0.25,
+            ease: "power2.out",
+          });
+        }
+      });
+    });
+
+    /* ── Mobile menu toggle ──────────────────────── */
+    function toggleMobile() {
+      isMobileOpen = !isMobileOpen;
+      mobileToggle.setAttribute("aria-expanded", String(isMobileOpen));
+      mobileToggle.setAttribute(
+        "aria-label",
+        isMobileOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"
+      );
+
+      if (isMobileOpen) {
+        mobileMenu.classList.remove("opacity-0", "invisible");
+        mobileMenu.classList.add("opacity-100", "visible");
+        iconMenu.classList.add("hidden");
+        iconClose.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        header.classList.add("bg-white");
+        headerBorder.classList.add("border-neutral-200/70");
+        headerBorder.classList.remove("border-transparent");
+      } else {
+        mobileMenu.classList.add("opacity-0", "invisible");
+        mobileMenu.classList.remove("opacity-100", "visible");
+        iconClose.classList.add("hidden");
+        iconMenu.classList.remove("hidden");
+        document.body.style.overflow = "";
+        handleScroll();
+      }
+    }
+
+    mobileToggle.addEventListener("click", toggleMobile);
+
+    // Close mobile on link click
+    mobileMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (isMobileOpen) toggleMobile();
+      });
+    });
+
+    /* ── Mobile Accordion ────────────────────────── */
+    const accordions = document.querySelectorAll("[data-mobile-accordion]");
+
+    accordions.forEach((accordion) => {
+      const trigger = accordion.querySelector<HTMLButtonElement>(
+        "[data-mobile-accordion-trigger]"
+      );
+      const content = accordion.querySelector<HTMLDivElement>(
+        "[data-mobile-accordion-content]"
+      );
+      const chevron = accordion.querySelector<HTMLSpanElement>(
+        "[data-mobile-accordion-chevron]"
+      );
+
+      if (!trigger || !content || !chevron) return;
+
+      trigger.addEventListener("click", () => {
+        const isOpen = trigger.getAttribute("aria-expanded") === "true";
+        trigger.setAttribute("aria-expanded", String(!isOpen));
+
+        if (!isOpen) {
+          content.classList.remove("grid-rows-[0fr]");
+          content.classList.add("grid-rows-[1fr]");
+          chevron.classList.add("rotate-180");
+        } else {
+          content.classList.add("grid-rows-[0fr]");
+          content.classList.remove("grid-rows-[1fr]");
+          chevron.classList.remove("rotate-180");
+        }
+      });
+    });
+  }
+
+  // Initialize on load
+  initHeader();
+
+  // Re-init after Astro page transitions
+  document.addEventListener("astro:after-swap", initHeader);
+</script>

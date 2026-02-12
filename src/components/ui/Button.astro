@@ -1,0 +1,152 @@
+---
+/**
+ * Button Component — Bytek Design System
+ *
+ * A flexible, accessible button that supports:
+ * - Multiple visual variants: primary, secondary, outline, ghost
+ * - Multiple sizes: sm, md, lg
+ * - Icons with configurable position (left or right)
+ * - Renders as <a> when `href` is provided, <button> otherwise
+ *
+ * @example
+ * <Button>Contáctanos</Button>
+ * <Button variant="outline" size="sm">Ver más</Button>
+ * <Button href="/contact" variant="primary" icon="arrow-right" iconPosition="right">Hablemos</Button>
+ */
+
+export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost";
+export type ButtonSize = "sm" | "md" | "lg";
+export type IconPosition = "left" | "right";
+
+interface Props {
+  /** Visual style variant */
+  variant?: ButtonVariant;
+  /** Size of the button */
+  size?: ButtonSize;
+  /** If provided, renders as <a> tag */
+  href?: string;
+  /** HTML button type (ignored if href is set) */
+  type?: "button" | "submit" | "reset";
+  /** Whether the button is disabled */
+  disabled?: boolean;
+  /** Whether the button takes full width */
+  fullWidth?: boolean;
+  /** Icon name to display */
+  icon?: string;
+  /** Position of the icon relative to text */
+  iconPosition?: IconPosition;
+  /** Additional CSS classes */
+  class?: string;
+  /** Open link in new tab (only for <a>) */
+  target?: string;
+  /** Accessible label */
+  "aria-label"?: string;
+}
+
+const {
+  variant = "primary",
+  size = "md",
+  href,
+  type = "button",
+  disabled = false,
+  fullWidth = false,
+  icon,
+  iconPosition = "left",
+  class: className = "",
+  target,
+  "aria-label": ariaLabel,
+  ...rest
+} = Astro.props;
+
+/* ── Variant styles ─────────────────────────────────── */
+const variantClasses: Record<ButtonVariant, string> = {
+  primary:
+    "bg-neutral-900 text-white hover:bg-neutral-800 active:bg-neutral-950 focus-visible:ring-neutral-900/30",
+  secondary:
+    "bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus-visible:ring-primary-500/30",
+  outline:
+    "bg-transparent text-neutral-900 border border-neutral-300 hover:bg-neutral-50 hover:border-neutral-400 active:bg-neutral-100 focus-visible:ring-neutral-400/30",
+  ghost:
+    "bg-transparent text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200 focus-visible:ring-neutral-400/30",
+};
+
+/* ── Size styles ────────────────────────────────────── */
+const sizeClasses: Record<ButtonSize, string> = {
+  sm: "px-3.5 py-1.5 text-sm gap-1.5",
+  md: "px-5 py-2.5 text-sm gap-2",
+  lg: "px-7 py-3 text-base gap-2.5",
+};
+
+const iconSizeClasses: Record<ButtonSize, string> = {
+  sm: "w-3.5 h-3.5",
+  md: "w-4 h-4",
+  lg: "w-5 h-5",
+};
+
+/* ── Build the class list ───────────────────────────── */
+const baseClasses =
+  "inline-flex items-center justify-center font-medium rounded-4xl transition-all duration-200 ease-(--ease-snappy) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none cursor-pointer";
+
+const disabledClasses = disabled ? "opacity-50 pointer-events-none" : "";
+const widthClasses = fullWidth ? "w-full" : "";
+
+const classes = [
+  baseClasses,
+  variantClasses[variant],
+  sizeClasses[size],
+  disabledClasses,
+  widthClasses,
+  className,
+]
+  .filter(Boolean)
+  .join(" ");
+
+const Tag = href ? "a" : "button";
+
+const iconSize = iconSizeClasses[size];
+---
+
+{
+  Tag === "a" ? (
+    <a
+      href={href}
+      class={classes}
+      target={target}
+      rel={target === "_blank" ? "noopener noreferrer" : undefined}
+      aria-label={ariaLabel}
+      {...rest}
+    >
+      {icon && iconPosition === "left" && (
+        <span class={`${iconSize} shrink-0`} aria-hidden="true">
+          <Fragment set:html={icon} />
+        </span>
+      )}
+      <slot />
+      {icon && iconPosition === "right" && (
+        <span class={`${iconSize} shrink-0`} aria-hidden="true">
+          <Fragment set:html={icon} />
+        </span>
+      )}
+    </a>
+  ) : (
+    <button
+      type={type}
+      class={classes}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      {...rest}
+    >
+      {icon && iconPosition === "left" && (
+        <span class={`${iconSize} shrink-0`} aria-hidden="true">
+          <Fragment set:html={icon} />
+        </span>
+      )}
+      <slot />
+      {icon && iconPosition === "right" && (
+        <span class={`${iconSize} shrink-0`} aria-hidden="true">
+          <Fragment set:html={icon} />
+        </span>
+      )}
+    </button>
+  )
+}
