@@ -9,7 +9,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Action                                                                | Skill           |
 
 | --------------------------------------------------------------------- | --------------- |
-When you need something related with SEO OPTIMIZATION                        | `seo-expert`|
+| `tailwind-4` | cn() utility, no var() in className | [SKILL.md](skills/tailwind-4/SKILL.md) |
 
 
 
